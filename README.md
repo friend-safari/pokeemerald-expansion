@@ -1,5 +1,7 @@
 # pokeemerald-expansion
 
+A fork of the upstream project at https://github.com/rh-hideout/pokeemerald-expansion, modified to have zero AI contributions.
+
 pokeemerald-expansion is ***a romhack base*** based off pret's [pokeemerald](https://github.com/pret/pokeemerald) decompilation project. ***It is NOT a playable romhack,*** but it has multiple features available to romhackers so that they can create their own games, so it's not meant to be played on its own.
 
 ## Should I use this or vanilla pokeemerald for my hack?
