@@ -10,15 +10,15 @@ You can help by filling out this list or adding yourself.
 | ghoulslash | x |
 | psf | x | Yes |
 | pawkkie | | No |
-| surskitty | x | |
+| surskitty | x | No |
 | Alex | | No |
 | ruby | | |
 | lwelyk | | |
 | dana yatsuta | | |
-| kittenchilly | | |
+| kittenchilly | x | |
 | hedara90 | | No |
 | PhallenTree | | |
-| Deokishisu | | |
+| Deokishisu | x| No |
 | shinydragonhunter | x | No |
 | PCG | | |
 | Martin Griffin | | No |
