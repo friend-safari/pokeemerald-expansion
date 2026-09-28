@@ -779,9 +779,7 @@ static void DecodeSymDeltatANS(const u32 *data, const u32 *pFreqs, u16 *resultVe
     // We want to store in packs of 2, so count needs to be divisible by 2
     u32 remainingCount = count % 2;
 
-    // When stack allocated, stack can reach down into and clobber iwram_code;
-    // For safety and to avoid crashes, heap allocate it instead
-    u32 *funcBuffer = Alloc(FUNC_BUFFER_SIZE(DecodeSymDeltatANSLoop, SwitchToArmCallSymDeltaANS) * sizeof(u32));
+    u32 funcBuffer[FUNC_BUFFER_SIZE(DecodeSymDeltatANSLoop, SwitchToArmCallSymDeltaANS)];
     CopyFuncToIwram(funcBuffer, DecodeSymDeltatANSLoop, SwitchToArmCallSymDeltaANS);
     u32 currSymbol = SwitchToArmCallSymDeltaANS(data, sWorkingYkTable, resultVec, &resultVec[count - remainingCount], (void *) funcBuffer);
 
@@ -833,8 +831,6 @@ static void DecodeSymDeltatANS(const u32 *data, const u32 *pFreqs, u16 *resultVe
         resultVec[count - remainingCount] = symbol;
         sBitIndex = bitIndex;
     }
-
-    TRY_FREE_AND_SET_NULL(funcBuffer);
 }
 
 static __attribute__((always_inline)) inline void Fill16(u16 value, void *_dst, u32 size)

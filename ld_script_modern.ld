@@ -20,7 +20,17 @@ SECTIONS {
         . = ALIGN(4);
     } > EWRAM
 
-    iwram 0x3000000 (NOLOAD) :
+    iwram_code 0x3000000 : AT (gIwramCodeLma)
+    ALIGN(4)
+    {
+        gIwramCodeStart = .;
+        *.o(iwram_code*);
+        . = ALIGN(4);
+        . += 4; /* Ensure size is always > 0 */
+    } > IWRAM
+    gIwramCodeWords = SIZEOF(iwram_code) / 4;
+
+    iwram (NOLOAD) :
     ALIGN(4)
     {
         *.o(.bss*);
@@ -30,6 +40,7 @@ SECTIONS {
         *libc.a:*.o(COMMON);
         *libnosys.a:*.o(COMMON);
         . = ALIGN(4);
+        __iwram_end = .;
     } > IWRAM
 
     /* BEGIN ROM DATA */
@@ -92,16 +103,6 @@ SECTIONS {
 
     . = ALIGN(4);
     gIwramCodeLma = .;
-    iwram_code : AT (gIwramCodeLma)
-    ALIGN(4)
-    {
-        gIwramCodeStart = .;
-        *.o(iwram_code*);
-        . = ALIGN(4);
-        . += 4; /* Ensure size is always > 0 */
-        __iwram_end = .;
-    } > IWRAM
-    gIwramCodeWords = SIZEOF(iwram_code) / 4;
     . = LOADADDR(iwram_code) + SIZEOF(iwram_code);
 
     /* Note: Do not place any other ROM sections after this,
