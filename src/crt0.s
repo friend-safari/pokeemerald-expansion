@@ -15,12 +15,12 @@ Init::
 	ldr r1, =INTR_VECTOR
 	adr r0, IntrMain
 	str r0, [r1]
-	.if MODERN
-	mov r0, #255 @ RESET_ALL
-	svc #1 << 16
-	.endif @ MODERN
+	mov r0, #RESET_ALL
+	ldr r1, =RegisterRamReset + 1
+	bl Init_call_via_r1
 	ldr r1, =AgbMain + 1
 	mov lr, pc
+Init_call_via_r1:
 	bx r1
 	b Init
 

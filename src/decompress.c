@@ -350,7 +350,7 @@ static __attribute__((always_inline)) inline void UnpackFrequencies(const u32 *p
 }
 
 // This is a small function, so we can store it in IWRAM for improved performance and don't need to worry about it taking too much precious IWRAM space.
-ARM_FUNC __attribute__((section(".iwram.code"))) __attribute__((noinline)) static void CopyTable(u32 *dst, const u32 *src, u32 size, u32 orrVal)
+ARM_FUNC __attribute__((section("iwram_code"))) __attribute__((noinline)) static void CopyTable(u32 *dst, const u32 *src, u32 size, u32 orrVal)
 {
     for (u32 i = 0; i < size; i++) {
         *dst++ = (*src++) | orrVal;
@@ -779,7 +779,9 @@ static void DecodeSymDeltatANS(const u32 *data, const u32 *pFreqs, u16 *resultVe
     // We want to store in packs of 2, so count needs to be divisible by 2
     u32 remainingCount = count % 2;
 
-    u32 funcBuffer[FUNC_BUFFER_SIZE(DecodeSymDeltatANSLoop, SwitchToArmCallSymDeltaANS)];
+    // When stack allocated, stack can reach down into and clobber iwram_code;
+    // For safety and to avoid crashes, heap allocate it instead
+    u32 *funcBuffer = Alloc(FUNC_BUFFER_SIZE(DecodeSymDeltatANSLoop, SwitchToArmCallSymDeltaANS) * sizeof(u32));
     CopyFuncToIwram(funcBuffer, DecodeSymDeltatANSLoop, SwitchToArmCallSymDeltaANS);
     u32 currSymbol = SwitchToArmCallSymDeltaANS(data, sWorkingYkTable, resultVec, &resultVec[count - remainingCount], (void *) funcBuffer);
 
@@ -831,6 +833,8 @@ static void DecodeSymDeltatANS(const u32 *data, const u32 *pFreqs, u16 *resultVe
         resultVec[count - remainingCount] = symbol;
         sBitIndex = bitIndex;
     }
+
+    TRY_FREE_AND_SET_NULL(funcBuffer);
 }
 
 static __attribute__((always_inline)) inline void Fill16(u16 value, void *_dst, u32 size)

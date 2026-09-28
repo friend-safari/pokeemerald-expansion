@@ -28,6 +28,7 @@ SECTIONS {
         src/*.o(.bss);
         data/*.o(.bss);
         test/*.o(.bss);
+        *.o(iwram_data);
         *libc.a:*.o(.bss*);
         *libgcc.a:*.o(.bss*);
         *libnosys.a:*.o(.bss*);
@@ -117,6 +118,36 @@ SECTIONS {
         test/*.o(.text);
         test/*.o(.rodata*);
     } > ROM =0
+
+    /* EWRAM/IWRAM code sections are listed here
+       in order to have them have VMAs after their BSS siblings and have LMAs in ROM */
+    /* See https://sourceware.org/binutils/docs/ld/Builtin-Functions.html */
+    . = ALIGN(4);
+    gEwramCodeLma = .;
+    ewram_code : AT (gEwramCodeLma)
+    ALIGN(4)
+    {
+        gEwramCodeStart = .;
+        *.o(ewram_code*);
+        . = ALIGN(4);
+        . += 4; /* Ensure size is always > 0 */
+    } > EWRAM
+    gEwramCodeWords = SIZEOF(ewram_code) / 4;
+    . = LOADADDR(ewram_code) + SIZEOF(ewram_code);
+
+    . = ALIGN(4);
+    gIwramCodeLma = .;
+    iwram_code : AT (gIwramCodeLma)
+    ALIGN(4)
+    {
+        gIwramCodeStart = .;
+        *.o(iwram_code*);
+        . = ALIGN(4);
+        . += 4; /* Ensure size is always > 0 */
+        __iwram_end = .;
+    } > IWRAM
+    gIwramCodeWords = SIZEOF(iwram_code) / 4;
+    . = LOADADDR(iwram_code) + SIZEOF(iwram_code);
 
     __rom_end = .;
 

@@ -63,9 +63,55 @@ IntrWait:
 
 	.ifdef L_RegisterRamReset
 	thumb_func_start RegisterRamReset
+@ Needs to not only reset RAM,
+@ but initialize EWRAM/IWRAM code sections if relevant;
+@ Cannot be a normal C function, because clearing IWRAM destroys the stack,
+@ so this function cannot safely push/pop anything
 RegisterRamReset:
+	mov r1, #RESET_EWRAM | RESET_IWRAM
+	and r1, r0
+	beq RegisterRamReset_init_none
+	cmp r1, #RESET_IWRAM
+	beq RegisterRamReset_init_iwram
+	cmp r1, #RESET_EWRAM
+	beq RegisterRamReset_init_ewram
+RegisterRamReset_init_wram:
+	svc #1
+	@ Init ewram_code
+	ldr r0, =gEwramCodeLma
+	ldr r1, =gEwramCodeStart
+	ldr r2, =(((DMA_SRC_INC | DMA_DEST_INC | DMA_32BIT | DMA_ENABLE) << 16) + gEwramCodeWords)
+	ldr r3, =REG_DMA3
+	stmia r3!, {r0, r1, r2}
+	@ Init iwram_code
+	ldr r0, =gIwramCodeLma
+	ldr r1, =gIwramCodeStart
+	ldr r2, =(((DMA_SRC_INC | DMA_DEST_INC | DMA_32BIT | DMA_ENABLE) << 16) + gIwramCodeWords)
+	ldr r3, =REG_DMA3
+	stmia r3!, {r0, r1, r2}
+	bx lr
+RegisterRamReset_init_iwram:
+	svc #1
+	@ Init iwram_code
+	ldr r0, =gIwramCodeLma
+	ldr r1, =gIwramCodeStart
+	ldr r2, =(((DMA_SRC_INC | DMA_DEST_INC | DMA_32BIT | DMA_ENABLE) << 16) + gIwramCodeWords)
+	ldr r3, =REG_DMA3
+	stmia r3!, {r0, r1, r2}
+	bx lr
+RegisterRamReset_init_ewram:
+	svc #1
+	@ Init ewram_code
+	ldr r0, =gEwramCodeLma
+	ldr r1, =gEwramCodeStart
+	ldr r2, =(((DMA_SRC_INC | DMA_DEST_INC | DMA_32BIT | DMA_ENABLE) << 16) + gEwramCodeWords)
+	ldr r3, =REG_DMA3
+	stmia r3!, {r0, r1, r2}
+	bx lr
+RegisterRamReset_init_none:
 	svc #1
 	bx lr
+	.pool
 	thumb_func_end RegisterRamReset
 	.endif
 
