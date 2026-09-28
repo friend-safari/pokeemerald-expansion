@@ -46,6 +46,8 @@ SECTIONS {
     /* .persistent starts at 0x3007F00 */
     /* WARNING: This is the end of the IRQ stack, if there's too
      * much data it WILL be overwritten. */
+
+    . = 0x03007F00;
     .iwram.persistent (NOLOAD) :
     ALIGN(4)
     {

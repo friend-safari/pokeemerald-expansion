@@ -12,12 +12,12 @@ Init::
 	mov r0, #PSR_SYS_MODE
 	msr cpsr_cf, r0
 	ldr sp, sp_sys
-	ldr r1, =INTR_VECTOR
-	adr r0, IntrMain
-	str r0, [r1]
 	mov r0, #RESET_ALL
 	ldr r1, =RegisterRamReset + 1
 	bl Init_call_via_r1
+	ldr r1, =INTR_VECTOR
+	ldr r0, =IntrMain
+	str r0, [r1]
 	ldr r1, =AgbMain + 1
 	mov lr, pc
 Init_call_via_r1:
@@ -31,6 +31,7 @@ sp_irq: .word IWRAM_END - 0x60
 	.pool
 
 	.arm
+	.section iwram_code
 	.align 2, 0
 IntrMain::
 	mov r3, #REG_BASE
@@ -123,4 +124,5 @@ IntrMain_RetAddr:
 
 	.pool
 
+	.text
 	.align 2, 0 @ Don't pad with nop.
