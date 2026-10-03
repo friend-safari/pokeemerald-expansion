@@ -6,11 +6,11 @@
 #define TRUE   1
 #define FALSE  0
 
-#define IWRAM_DATA __attribute__((section(".bss")))
-#define EWRAM_DATA __attribute__((section(".sbss")))
-#define IWRAM_INIT __attribute__((section(".iwram")))
-#define EWRAM_INIT __attribute__((section(".ewram")))
+#define IWRAM_DATA __attribute__((section("iwram_data")))
+#define EWRAM_DATA __attribute__((section("ewram_data")))
 #define COMMON_DATA __attribute__((section("common_data")))
+#define IWRAM_INIT __attribute__((section("iwram_code")))
+#define EWRAM_INIT __attribute__((section("ewram_code")))
 #define UNUSED __attribute__((unused))
 #define USED __attribute__((used))
 #define KEEP_SECTION __attribute__((section(".text.consts")))
