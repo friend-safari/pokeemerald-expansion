@@ -13,39 +13,22 @@ MEMORY
 }
 
 SECTIONS {
-
-    .ewram ORIGIN(EWRAM) : AT (__ewram_lma)
+    ewram 0x2000000 (NOLOAD) :
     ALIGN(4)
     {
-        __ewram_start = .;
-        *(.ewram*)
-        . = ALIGN(4);
-        __ewram_end = .;
-    } > EWRAM
-
-    .ewram.sbss (NOLOAD) :
-    ALIGN(4)
-    {
-        src/*.o(.sbss);
-        test/*.o(.sbss);
+        src/*.o(ewram_data);
+        gflib/*.o(ewram_data);
+        test/*.o(ewram_data);
         . = ALIGN(4);
     } > EWRAM
 
-    .iwram ORIGIN(IWRAM) : AT (__iwram_lma)
-    ALIGN(4)
-    {
-        __iwram_start = .;
-        *(.iwram*);
-        . = ALIGN(4);
-        __iwram_end = .;
-    } > IWRAM
-
-    .iwram.bss (NOLOAD) :
+    iwram 0x3000000 (NOLOAD) :
     ALIGN(4)
     {
         src/*.o(.bss);
         data/*.o(.bss);
         test/*.o(.bss);
+        *.o(iwram_data);
         *libc.a:*.o(.bss*);
         *libgcc.a:*.o(.bss*);
         *libnosys.a:*.o(.bss*);
@@ -57,11 +40,14 @@ SECTIONS {
         data/*.o(COMMON);
         test/*.o(COMMON);
         *libc.a:sbrkr.o(COMMON);
+        . = ALIGN(4);
     } > IWRAM
 
     /* .persistent starts at 0x3007F00 */
     /* WARNING: This is the end of the IRQ stack, if there's too
      * much data it WILL be overwritten. */
+
+    . = 0x03007F00;
     .iwram.persistent (NOLOAD) :
     ALIGN(4)
     {
@@ -124,20 +110,6 @@ SECTIONS {
         src/libisagbprn.o(.rodata);
     } > ROM =0
 
-    .data.iwram :
-    ALIGN(8)
-    {
-        __iwram_lma = .;
-        . = . + (__iwram_end - __iwram_start);
-    } > ROM = 0
-
-    .data.ewram :
-    ALIGN(4)
-    {
-        __ewram_lma = .;
-        . = . + (__ewram_end - __ewram_start);
-    } > ROM = 0
-
     tests :
     ALIGN(4)
     {
@@ -148,6 +120,36 @@ SECTIONS {
         test/*.o(.text);
         test/*.o(.rodata*);
     } > ROM =0
+
+    /* EWRAM/IWRAM code sections are listed here
+       in order to have them have VMAs after their BSS siblings and have LMAs in ROM */
+    /* See https://sourceware.org/binutils/docs/ld/Builtin-Functions.html */
+    . = ALIGN(4);
+    gEwramCodeLma = .;
+    ewram_code : AT (gEwramCodeLma)
+    ALIGN(4)
+    {
+        gEwramCodeStart = .;
+        *.o(ewram_code*);
+        . = ALIGN(4);
+        . += 4; /* Ensure size is always > 0 */
+    } > EWRAM
+    gEwramCodeWords = SIZEOF(ewram_code) / 4;
+    . = LOADADDR(ewram_code) + SIZEOF(ewram_code);
+
+    . = ALIGN(4);
+    gIwramCodeLma = .;
+    iwram_code : AT (gIwramCodeLma)
+    ALIGN(4)
+    {
+        gIwramCodeStart = .;
+        *.o(iwram_code*);
+        . = ALIGN(4);
+        . += 4; /* Ensure size is always > 0 */
+        __iwram_end = .;
+    } > IWRAM
+    gIwramCodeWords = SIZEOF(iwram_code) / 4;
+    . = LOADADDR(iwram_code) + SIZEOF(iwram_code);
 
     __rom_end = .;
 

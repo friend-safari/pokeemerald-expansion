@@ -12,45 +12,41 @@ MEMORY
 }
 
 SECTIONS {
-
-
-    .ewram ORIGIN(EWRAM) : AT (__ewram_lma)
+    ewram 0x2000000 (NOLOAD) :
     ALIGN(4)
     {
-        __ewram_start = .;
-        *(.ewram*)
+        src/*.o(ewram_data);
+        gflib/*.o(ewram_data);
         . = ALIGN(4);
-        __ewram_end = .;
     } > EWRAM
 
-    .ewram.sbss (NOLOAD) :
+    iwram_code 0x3000000 : AT (gIwramCodeLma)
     ALIGN(4)
     {
-        *.o(.sbss);
-    } > EWRAM
-
-    .iwram ORIGIN(IWRAM) : AT (__iwram_lma)
-    ALIGN(4)
-    {
-        __iwram_start = .;
-        *(.iwram*);
+        gIwramCodeStart = .;
+        *.o(iwram_code*);
         . = ALIGN(4);
-        __iwram_end = .;
+        . += 4; /* Ensure size is always > 0 */
     } > IWRAM
+    gIwramCodeWords = SIZEOF(iwram_code) / 4;
 
-    .iwram.bss (NOLOAD) :
+    iwram (NOLOAD) :
     ALIGN(4)
     {
         *.o(.bss*);
+        *.o(iwram_data);
         *.o(common_data);
         src/*.o(COMMON);
         *libc.a:*.o(COMMON);
         *libnosys.a:*.o(COMMON);
+        . = ALIGN(4);
+        __iwram_end = .;
     } > IWRAM
 
     /* BEGIN ROM DATA */
+    . = 0x8000000;
 
-    .text ORIGIN(ROM) :
+    .text :
     ALIGN(4)
     {
         src/rom_header.o(.text*);
@@ -89,19 +85,38 @@ SECTIONS {
         sound/songs/*.o(.rodata);
     } > ROM =0
 
-    .data.iwram :
+    /* EWRAM/IWRAM code sections are listed here
+       in order to have them have VMAs after their BSS siblings and have LMAs in ROM */
+    /* See https://sourceware.org/binutils/docs/ld/Builtin-Functions.html */
+    . = ALIGN(4);
+    gEwramCodeLma = .;
+    ewram_code : AT (gEwramCodeLma)
     ALIGN(4)
     {
-        __iwram_lma = .;
-        . = . + (__iwram_end - __iwram_start);
-    } > ROM = 0
+        gEwramCodeStart = .;
+        *.o(ewram_code*);
+        . = ALIGN(4);
+        . += 4; /* Ensure size is always > 0 */
+    } > EWRAM
+    gEwramCodeWords = SIZEOF(ewram_code) / 4;
+    . = LOADADDR(ewram_code) + SIZEOF(ewram_code);
 
-    .data.ewram :
+    . = ALIGN(4);
+    gIwramCodeLma = .;
+    . = LOADADDR(iwram_code) + SIZEOF(iwram_code);
+
+    /* Note: Do not place any other ROM sections after this,
+       unless they are structured like: */
+    /*
+    __after_iwram_code = .;
+    custom_rom_section : AT(__after_iwram_code)
     ALIGN(4)
     {
-        __ewram_lma = .;
-        . = . + (__ewram_end - __ewram_start);
-    } > ROM = 0
+        ...
+    } > ROM
+    . = LOADADDR(custom_rom_section) + SIZEOF(custom_rom_section);
+    __after_custom_rom_section = .;
+    */
 
     __rom_end = .;
 

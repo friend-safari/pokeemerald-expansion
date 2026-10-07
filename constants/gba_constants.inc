@@ -518,4 +518,16 @@
 	.set BLDCNT_TGT2_BD,        1 << 13
 	.set BLDCNT_TGT2_ALL,       BLDCNT_TGT2_BG0 | BLDCNT_TGT2_BG1 | BLDCNT_TGT2_BG2 | BLDCNT_TGT2_BG3 | BLDCNT_TGT2_OBJ | BLDCNT_TGT2_BD
 
+@ RegisterRamReset
+
+	.set RESET_EWRAM,		1 << 0
+	.set RESET_IWRAM,		1 << 1
+	.set RESET_PALETTE,		1 << 2
+	.set RESET_VRAM,		1 << 3
+	.set RESET_OAM,			1 << 4
+	.set RESET_SIO_REGS,	1 << 5
+	.set RESET_SOUND_REGS,	1 << 6
+	.set RESET_REGS,		1 << 7
+	.set RESET_ALL,			0xFF
+
 #endif @ GUARD_CONSTANTS_GBA_CONSTANTS_INC

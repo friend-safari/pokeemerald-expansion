@@ -350,7 +350,7 @@ static __attribute__((always_inline)) inline void UnpackFrequencies(const u32 *p
 }
 
 // This is a small function, so we can store it in IWRAM for improved performance and don't need to worry about it taking too much precious IWRAM space.
-ARM_FUNC __attribute__((section(".iwram.code"))) __attribute__((noinline)) static void CopyTable(u32 *dst, const u32 *src, u32 size, u32 orrVal)
+ARM_FUNC __attribute__((section("iwram_code"))) __attribute__((noinline)) static void CopyTable(u32 *dst, const u32 *src, u32 size, u32 orrVal)
 {
     for (u32 i = 0; i < size; i++) {
         *dst++ = (*src++) | orrVal;
