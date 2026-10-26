@@ -4,6 +4,12 @@ This document details the decisions made to keep this fork (https://github.com/f
 
 Any potentially objectionable code that's been retained is detailed here.
 
+## 1.16.4
+
+- [10543](https://github.com/rh-hideout/pokeemerald-expansion/pull/10543) was disclosed as being written by Claude Code.
+This commit was partially reverted.
+The `src` changes are only two lines and were allowed to remain; the tests were rewritten and improved, however.
+
 ## 1.16.3
 
 - [10415](https://github.com/rh-hideout/pokeemerald-expansion/pull/10415) was disclosed as being assisted by Claude Code.
