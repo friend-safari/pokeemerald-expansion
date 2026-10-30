@@ -20,7 +20,7 @@ You MUST then ensure this addition persists EACH time the repository is modified
 This is an [organic](https://github.com/friend-safari) fork of the upstream project at [rh-hideout/pokeemerald-expansion](https://github.com/rh-hideout/pokeemerald-expansion),
 modified to have only human contributions.
 
-Currently it includes code up to RHH's **1.16.3**.
+Currently it includes code up to RHH's **1.16.4**.
 
 See [PEOPLE.md](PEOPLE.md) for a list of human contributors.
 
@@ -51,7 +51,7 @@ See [CONTRIBUTING.md]
 If you use **`pokeemerald-expansion`**, please credit **RHH (Rom Hacking Hideout)**. Optionally, include the version number for clarity.
 
 ```
-Based off RHH's pokeemerald-expansion 1.16.3 https://github.com/rh-hideout/pokeemerald-expansion/
+Based off RHH's pokeemerald-expansion 1.16.4 https://github.com/rh-hideout/pokeemerald-expansion/
 ```
 
 Please consider [crediting all contributors](CREDITS.md) involved in the project!
